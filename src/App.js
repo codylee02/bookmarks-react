@@ -1,94 +1,108 @@
-import React from 'react';
+import React, { Component } from 'react';
+import { Route } from 'react-router-dom';
+import AddBookmark from './AddBookmark/AddBookmark';
+import BookmarkList from './BookmarkList/BookmarkList';
+import BookmarksContext from './BookmarksContext';
+import Nav from './Nav/Nav';
+import config from './config';
 import './App.css';
 
-import AddBookmark from './addBookmark/AddBookmark';
-import BookmarkApp from './bookmarkApp/BookmarkApp';
+const bookmarks = [
+  // {
+  //   id: 0,
+  //   title: 'Google',
+  //   url: 'http://www.google.com',
+  //   rating: '3',
+  //   desc: 'Internet-related services and products.'
+  // },
+  // {
+  //   id: 1,
+  //   title: 'Thinkful',
+  //   url: 'http://www.thinkful.com',
+  //   rating: '5',
+  //   desc: '1-on-1 learning to accelerate your way to a new high-growth tech career!'
+  // },
+  // {
+  //   id: 2,
+  //   title: 'Github',
+  //   url: 'http://www.github.com',
+  //   rating: '4',
+  //   desc: 'brings together the world\'s largest community of developers.'
+  // }
+];
 
+class App extends Component {
+  state = {
+    bookmarks: [],
+    error: null,
+  };
 
-// const bookmarks = [
-//   {
-//     title:"Google",
-//     url: "http://www.google.com",
-//     rating: "3",
-//     description: "No evil"
-//   },
-//     {
-//       title:"Facebook",
-//       url: "http://www.facebook.com",
-//       rating: "5",
-//       description: "Spend too much time here"
-//     }
-// ]
-
-
-
-
-
-export default class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      bookmarks: [],
-      showAddForm: false
-    }
-  }
-
-  setShowAddForm(show) {
+  setBookmarks = bookmarks => {
     this.setState({
-      showAddForm: show
+      bookmarks,
+      error: null,
     })
   }
 
-  addBookmark(bookmark) {
+  addBookmark = bookmark => {
     this.setState({
-      bookmarks: [...this.state.bookmarks, bookmark],
-      showAddForm: false
-    });
+      bookmarks: [ ...this.state.bookmarks, bookmark ],
+    })
+  }
+
+  deleteBookmark = bookmarkId => {
+    const newBookmarks = this.state.bookmarks.filter(bm =>
+      bm.id !== bookmarkId
+      )
+      this.setState({
+        bookmarks: newBookmarks
+      })
   }
 
   componentDidMount() {
-    const url = 'https://tf-ed-bookmarks-api.herokuapp.com/v3/bookmarks';
-    const options = {
+    fetch(config.API_ENDPOINT, {
       method: 'GET',
       headers: {
-        "Authorization": "Bearer $2a$10$Q6FyXSZBsFXyqgD93Ab0euXmeGfE3hm.jdBjwUVlSDDDU.DwGNmt2",
-        "Content-Type": "application/json"
+        'content-type': 'application/json',
+        'Authorization': `Bearer ${config.API_KEY}`
       }
-    };
-
-    fetch(url, options)
+    })
       .then(res => {
-        if(!res.ok) {
-          throw new Error('Something went wrong, please try again later');
+        if (!res.ok) {
+          throw new Error(res.status)
         }
-        return res;
+        return res.json()
       })
-      .then(res => res.json())
-      .then(data => {
-        this.setState({
-          bookmarks: data,
-          error: null
-        });
-      })
-      .catch(err => {
-        this.setState({
-          error: err.message
-        });
-      });
+      .then(this.setBookmarks)
+      .catch(error => this.setState({ error }))
   }
 
   render() {
-    const page = this.state.showAddForm
-      ? <AddBookmark 
-        showForm={show => this.setShowAddForm(show)}
-        handleAdd={bookmark => this.addBookmark(bookmark)} />
-      : <BookmarkApp 
-        bookmarks={this.state.bookmarks} 
-        showForm={show => this.setShowAddForm(show)} />
-  return (
-    <main className='App'>
-      {page}
-    </main>
-  );
+    const contextValue = {
+      bookmarks: this.state.bookmarks,
+      addBookmark: this.addBookmark,
+      deleteBookmark: this.deleteBookmark,
+    }
+    return (
+      <main className='App'>
+        <h1>Bookmarks!</h1>
+        <BookmarksContext.Provider value={contextValue}>
+          <Nav />
+          <div className='content' aria-live='polite'>
+          <Route
+            path='/add-bookmark'
+            component={AddBookmark}
+          />
+          <Route
+            exact
+            path='/'
+            component={BookmarkList}
+          />
+        </div>
+        </BookmarksContext.Provider>
+      </main>
+    );
+  }
 }
-}
+
+export default App;

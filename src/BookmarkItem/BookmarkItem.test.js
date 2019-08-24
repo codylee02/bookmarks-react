@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Rating from './Rating';
+import BookmarkItem from './BookmarkItem';
 
 it('renders without crashing', () => {
   const div = document.createElement('div');
-  ReactDOM.render(<Rating />, div);
+  ReactDOM.render(<BookmarkItem />, div);
   ReactDOM.unmountComponentAtNode(div);
 });

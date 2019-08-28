@@ -1,5 +1,6 @@
 {
     "version": 2,
+    "alias": "codylee02s-bookmarks-app",
     "name": "bookmarks-app",
     "routes": [
         {

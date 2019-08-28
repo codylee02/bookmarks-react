@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 
-import AddBookmark from './addBookmark/AddBookmark';
+import AddBookmark from './AddBookmark/AddBookmark.js';
 import BookmarkApp from './bookmarkApp/BookmarkApp';
 
 

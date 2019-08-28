@@ -1,126 +1,142 @@
 import React, { Component } from  'react';
-import './addBookmark.css';
+import BookmarksContext from '../BookmarksContext'
+import config from '../config'
+import './AddBookmark.css';
+
+const Required = () => (
+  <span className='AddBookmark__required'>*</span>
+)
 
 class AddBookmark extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      title: "",
-      url: "",
-      description: "",
-      rating: 1
-    };
-  }
+  static contextType = BookmarksContext;
 
-  titleChanged(title) {
-    this.setState({
-      title
-    });
-  }
+  state = {
+    error: null,
+  };
 
-  urlChanged(url) {
-    this.setState({
-      url
-    });
-  }
-
-  descriptionChanged(description) {
-    this.setState({
-      description
-    });
-  }
-
-  ratingChanged(rating) {
-    this.setState({
-      rating
-    });
-  }
-
-  handleSubmit(e) {
-    e.preventDefault();
-    const bookmark = (({title, url, description, rating}) => ({title, url, description, rating}))(this.state);
-    const url ='https://tf-ed-bookmarks-api.herokuapp.com/bookmarks';
-    const options = {
+  handleSubmit = e => {
+    e.preventDefault()
+    // get the form fields from the event
+    const { title, url, description, rating } = e.target
+    const bookmark = {
+      title: title.value,
+      url: url.value,
+      description: description.value,
+      rating: rating.value,
+    }
+    this.setState({ error: null })
+    fetch(config.API_ENDPOINT, {
       method: 'POST',
       body: JSON.stringify(bookmark),
       headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $2a$10$Q6FyXSZBsFXyqgD93Ab0euXmeGfE3hm.jdBjwUVlSDDDU.DwGNmt2"
+        'content-type': 'application/json',
+        'authorization': `bearer ${config.API_KEY}`
       }
-    };
-
-    fetch(url, options)
+    })
       .then(res => {
-        if(!res.ok) {
-          throw new Error('Something went wrong, please try again later');
+        if (!res.ok) {
+          // get the error message from the response,
+          return res.json().then(error => {
+            // then throw it
+            throw error
+          })
         }
-        return res.json();
+        return res.json()
       })
       .then(data => {
-        this.setState({
-          title: "",
-          url: "",
-          description: "",
-          rating: 1
-        });
-        this.props.handleAdd(bookmark);
+        title.value = ''
+        url.value = ''
+        description.value = ''
+        rating.value = ''
+        this.context.addBookmark(data)
+        this.props.history.push('/')
       })
-      .catch(err => {
-        this.setState({
-          error: err.message
-        });
-      });
+      .catch(error => {
+        this.setState({ error })
+      })
   }
 
+  handleClickCancel = () => {
+    this.props.history.push('/')
+  };
+
   render() {
-    const error = this.state.error
-          ? <div className="error">{this.state.error}</div>
-          : "";
-
+    const { error } = this.state
+    
     return (
-      <div className="addbookmark">
-        <h2>Add Bookmark</h2>
-        { error }
-        <form className="addbookmark__form" onSubmit={e => this.handleSubmit(e)}>
-          <label htmlFor="title">Title:</label>
-          <input
-            type="text"
-            name="title"
-            id="title"
-            placeholder="Title"
-            value={this.state.title}
-            onChange={e => this.titleChanged(e.target.value)}/>
-          <label htmlFor="url">Url:</label>  
-          <input
-            type="text"
-            name="url"
-            id="url"
-            placeholder="url"
-            value={this.state.url}
-            onChange={e => this.urlChanged(e.target.value)}/>
-          <label htmlFor="description">Description:</label>  
-          <textarea
-            name="description"
-            id="description"
-            placeholder="description"
-            value={this.state.description}
-            onChange={e => this.descriptionChanged(e.target.value)}/>
-          <label htmlFor="rating">Rating: </label>
-          <input
-            type="number"
-            name="rating"
-            id="rating"
-            min="1"
-            max="5"
-            value={this.state.rating}
-            onChange={e => this.ratingChanged(e.target.value)}/>
-
-          <div className="addbookmark__buttons">
-            <button onClick={e => this.props.showForm(false)}>Cancel</button>
-            <button type="submit" >Save</button>
-          </div>  
+      <section className='AddBookmark'>
+        <h2>Create a bookmark</h2>
+        <form
+          className='AddBookmark__form'
+          onSubmit={this.handleSubmit}
+        >
+          <div className='AddBookmark__error' role='alert'>
+            {error && <p>{error.message}</p>}
+          </div>
+          <div>
+            <label htmlFor='title'>
+              Title
+              {' '}
+              <Required />
+            </label>
+            <input
+              type='text'
+              name='title'
+              id='title'
+              placeholder='Great website!'
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor='url'>
+              URL
+              {' '}
+              <Required />
+            </label>
+            <input
+              type='url'
+              name='url'
+              id='url'
+              placeholder='https://www.great-website.com/'
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor='description'>
+              Description
+            </label>
+            <textarea
+              name='description'
+              id='description'
+            />
+          </div>
+          <div>
+            <label htmlFor='rating'>
+              Rating
+              {' '}
+              <Required />
+            </label>
+            <input
+              type='number'
+              name='rating'
+              id='rating'
+              defaultValue='1'
+              min='1'
+              max='5'
+              required
+            />
+          </div>
+          <div className='AddBookmark__buttons'>
+            <button type='button' onClick={this.handleClickCancel}>
+              Cancel
+            </button>
+            {' '}
+            <button type='submit'>
+              Save
+            </button>
+          </div>
         </form>
-      </div>
+      </section>
     );
   }
 }

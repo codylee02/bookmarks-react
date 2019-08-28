@@ -1,5 +1,5 @@
 import React from 'react';
-import './Rating.css';
+import './rating.css';
 
 export default function Rating(props) {
   const stars = [0, 0, 0, 0, 0].map((_, i) =>
@@ -14,7 +14,7 @@ export default function Rating(props) {
   );
 }
 
-Rating.PropTypes = {
+Rating.propTypes = {
   value: (props, propName, componentName) => {
     //first get the value of the prop
     const prop = props[propName];

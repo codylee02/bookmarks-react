@@ -1,5 +1,5 @@
 import React from 'react';
-import Rating from '../Rating/Rating';
+import Rating from '../Rating/rating';
 import BookmarksContext from '../BookmarksContext';
 import config from '../config';
 import './BookmarkItem.css';

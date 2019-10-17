@@ -19,7 +19,7 @@ export default class EditBookmark extends Component {
 
   componentDidMount() {
     const { bookmarkId } = this.props.match.params;
-    fetch(config.API_ENDPOINT + `/${bookmarkId}`, {
+    fetch(config.API_ENDPOINT + `/api/${bookmarkId}`, {
       method: "GET",
       headers: {
         authorization: `Bearer ${config.API_KEY}`
@@ -65,7 +65,7 @@ export default class EditBookmark extends Component {
     const { bookmarkId } = this.props.match.params;
     const { id, title, url, description, rating } = this.state;
     const newBookmark = { id, title, url, description, rating };
-    fetch(config.API_ENDPOINT + `/${bookmarkId}`, {
+    fetch(config.API_ENDPOINT + `/api/${bookmarkId}`, {
       method: "PATCH",
       body: JSON.stringify(newBookmark),
       headers: {

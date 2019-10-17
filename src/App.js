@@ -46,7 +46,7 @@ class App extends Component {
   };
 
   componentDidMount() {
-    fetch(`${config.API_ENDPOINT}/bookmarks`, {
+    fetch(`${config.API_ENDPOINT}/api/bookmarks`, {
       method: "GET",
       headers: {
         "content-type": "application/json",

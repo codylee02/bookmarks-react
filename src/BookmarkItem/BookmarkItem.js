@@ -7,7 +7,7 @@ import "./BookmarkItem.css";
 import PropTypes from "prop-types";
 
 function deleteBookmarkRequest(bookmarkId, callback) {
-  fetch(config.API_ENDPOINT + `/${bookmarkId}`, {
+  fetch(config.API_ENDPOINT + `/api/${bookmarkId}`, {
     method: "DELETE",
     headers: {
       authorization: `bearer ${config.API_KEY}`
